@@ -9,6 +9,7 @@ from typing import Literal, Optional
 from unittest.mock import MagicMock
 
 import pytest
+import tomlkit
 import yaml
 from pytest_mock import MockerFixture
 
@@ -40,6 +41,11 @@ def json_logging_config(logging_config: dict) -> str:
 @pytest.fixture
 def yaml_logging_config(logging_config: dict) -> str:
     return yaml.dump(logging_config)
+
+
+@pytest.fixture
+def toml_logging_config(logging_config: dict) -> str:
+    return tomlkit.dumps(logging_config)
 
 
 async def asgi_app(
@@ -406,6 +412,26 @@ def test_log_config_yaml(
     config.load()
 
     mocked_open.assert_called_once_with(config_filename)
+    mocked_logging_config_module.dictConfig.assert_called_once_with(logging_config)
+
+
+def test_log_config_toml(
+    mocked_logging_config_module: MagicMock,
+    logging_config: dict,
+    toml_logging_config: str,
+    mocker: MockerFixture,
+) -> None:
+    """
+    Test that one can load a toml config from disk.
+    """
+    mocked_open = mocker.patch(
+        "uvicorn.config.open", mocker.mock_open(read_data=toml_logging_config)
+    )
+
+    config = Config(app=asgi_app, log_config="log_config.toml")
+    config.load()
+
+    mocked_open.assert_called_once_with("log_config.toml")
     mocked_logging_config_module.dictConfig.assert_called_once_with(logging_config)
 
 

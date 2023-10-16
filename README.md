@@ -52,6 +52,7 @@ Moreover, "optional extras" means that:
 - windows users will have `colorama` installed for the colored logs.
 - `python-dotenv` will be installed should you want to use the `--env-file` option.
 - `PyYAML` will be installed to allow you to provide a `.yaml` file to `--log-config`, if desired.
+- `tomli` will be installed to allow you to provide a `.toml` file to `--log-config` in Python 3.10 and lower, if desired.
 
 Create an application, in `example.py`:
 
